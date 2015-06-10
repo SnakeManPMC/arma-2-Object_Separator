@@ -19,7 +19,7 @@ void Object_Separator::RunMe(int argc, char *argv[])
 
     if (argc < 4)
     {
-        qDebug() << "Command line: \n" << "object_list other_output special_output my_special_objects";
+	qDebug() << "Command line: \n" << "object_list other_output special_output my_special_objects";
         exit(0);
     }
 

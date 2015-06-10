@@ -7,5 +7,5 @@ int main(int argc, char *argv[])
 	Object_Separator sep;
 	sep.RunMe(argc, argv);
 	
-    return 0;
+	return 0;
 }
