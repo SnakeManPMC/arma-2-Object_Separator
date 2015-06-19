@@ -1,7 +1,6 @@
 #ifndef OBJECT_SEPARATOR_H
 #define OBJECT_SEPARATOR_H
 #include <QFile>
-#include <QMap>
 #include <QStringList>
 #include <QTextStream>
 
@@ -11,7 +10,7 @@ public:
 	Object_Separator();
 	void RunMe(int argc, char *argv[]);
 	// for the replace objects string search
-	QMap<QString, QStringList> coll;
+	QStringList special_objects;
 	void Config_Read(char *argv[]);
 };
 

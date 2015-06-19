@@ -1,10 +1,7 @@
 #include "object_separator.h"
 #include <QtCore/QCoreApplication>
-#include <cstdio>
-#include <cstdlib>
 #include <QFile>
 #include <QTextStream>
-#include <QMap>
 #include <QStringList>
 #include <QDebug>
 
@@ -62,29 +59,62 @@ void Object_Separator::RunMe(int argc, char *argv[])
     QTextStream objects(&file);
 
     // output file _objects_other.txt
-    QTextStream other(&file_other);
+    QTextStream otherobj(&file_other);
 
     // output file objects_special.txt
     QTextStream specialobj(&file_special);
 
+    // p3d path + file name only
+    QString p3donly;
+    QStringList p3donlylist;
+
+    // bool for match found
+    bool matchfound;
+    long numOther = 0, numSpecial = 0;
+
+    // depew header
+    QString depewheader = objects.readLine();
+
+    // initialize the headers for our new export files
+    otherobj << depewheader << "\n";
+    specialobj << depewheader << "\n";
+
     while (!objects.atEnd())
     {
         line = objects.readLine();
-        // compare and write accordingly to _other and _special files
         line = line.toLower();
-        QMap<QString, QStringList>::iterator it;
+	// parse the real depew output into p3d path + file anme only
+	p3donlylist = line.split(";");
+	p3donly = p3donlylist[0];
 
-        for ( it=coll.begin(); it != coll.end(); ++it )
-        {
-            if ( line.compare( it.key() ) == 0)
-            {
-                // write out the special object
-                specialobj << line;
-                // break the loop, we found our match.
-                break;
-            }
-        }
+	// compare and write accordingly to _other and _special files
+	for (int i = 0; i < special_objects.size(); i++)
+	{
+		if ( p3donly.compare( special_objects[i] ) == 0)
+		{
+			// break the loop, we found our match.
+			matchfound = true;
+			break;
+		}
+	}
+
+	if (matchfound)
+	{
+		// write out the special object
+		specialobj << line << "\n";
+		// stats ;)
+		numSpecial++;
+	}
+	else
+	{
+		otherobj << line << "\n";
+		numOther++;
+	}
+	// reset it back to falsehoood!
+	matchfound = false;
     }
+
+    qDebug() << "All done!\nObject Statistics:\nOther: " << numOther << "\nSpecial: " << numSpecial << "\n";
 
     file.close();
     file_other.close();
@@ -107,19 +137,14 @@ void Object_Separator::Config_Read(char *argv[])
     qDebug() << "Opened config file: " << file.fileName();
 
     QString line;
-    QStringList list;
 
     while (!in.atEnd())
     {
         line = in.readLine();
         line = line.toLower();
-
-        for (int i = 0; i < list.size(); i++)
-        {
-            coll.insert( list[0], QStringList() << list[i] );
-        }
+	special_objects.append(line);
     }
-    qDebug() << "Read " << coll.size() << " config lines.";
+    qDebug() << "Read " << special_objects.size() << " config lines.";
 
     file.close();
 }
